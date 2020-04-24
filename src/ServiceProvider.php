@@ -18,22 +18,18 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function boot()
     {
-        // routes
-        if (!$this->app->routesAreCached()) {
-            require __DIR__ . '/Http/routes.php';
-        }
+
+		$this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         // views
         $this->loadViewsFrom(__DIR__ . '/Views', 'backupmanager', self::PACKAGE);
-		$this->publishes([
-			__DIR__ . '/Views' => base_path('resources/views/vendor/' . self::PACKAGE),
-		], 'views');
 
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/Config/config.php' => config_path('backupmanager.php'),
-                __DIR__ . '/Migrations' => database_path('migrations')
+                __DIR__ . '/Migrations' => database_path('migrations'),
+				__DIR__ . '/Views' => base_path('resources/views/vendor/' . self::PACKAGE)
             ]);
         }
     }
