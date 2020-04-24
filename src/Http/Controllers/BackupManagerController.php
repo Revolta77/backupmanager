@@ -27,8 +27,7 @@ class BackupManagerController extends BaseController
         return view('backupmanager::index', compact('title', 'backups'));
     }
 
-    public function createBackup()
-    {
+    public function createBackup() {
         $message = '';
         $mailBody = '';
         $messages = [];
