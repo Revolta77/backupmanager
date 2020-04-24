@@ -8,216 +8,226 @@ use Log;
 use Revolta77\BackupManager\Facades\BackupManager;
 use Session;
 use Storage;
+use Auth;
 
 class BackupManagerController extends BaseController
 {
-    public function __construct()
-    {
-        if (config('backupmanager.http_authentication')) {
-            $this->middleware( config('backupmanager.middleware', 'auth.basic') );
-        }
-    }
+	protected $user;
+	public function __construct()
+	{
+		$this->middleware(function ($request, $next) {
 
-    public function index()
-    {
-        $title = 'Backup List';
+			$this->user = Auth::user();
 
-        $backups = BackupManager::getBackups();
+			return $next($request);
+		});
 
-        return view('backupmanager::index', compact('title', 'backups'));
-    }
+		if (config('backupmanager.http_authentication')) {
+			$this->middleware( config('backupmanager.middleware', 'auth.basic') );
+			$this->middleware(['web', config('backupmanager.middleware', 'auth.basic')]);
+		}
+	}
 
-    public function createBackup() {
-        $message = '';
-        $mailBody = '';
-        $messages = [];
+	public function index()
+	{
+		$title = 'Backup List';
 
-        // create backups
-        $result = BackupManager::createBackup();
+		$backups = BackupManager::getBackups();
 
-        // set status messages
-        if ($result['f'] === true) {
-            $message = 'Files Backup Taken Successfully';
+		return view('backupmanager::index', compact('title', 'backups'));
+	}
 
-            $messages[] = [
-                'type' => 'success',
-                'message' => $message
-            ];
+	public function createBackup() {
+		$message = '';
+		$mailBody = '';
+		$messages = [];
 
-            Log::info($message);
-        } else {
-            if (config('backupmanager.backups.files.enable')) {
-                $message = 'Files Backup Failed';
+		// create backups
+		$result = BackupManager::createBackup();
 
-                $messages[] = [
-                    'type' => 'danger',
-                    'message' => $message
-                ];
+		// set status messages
+		if ($result['f'] === true) {
+			$message = 'Files Backup Taken Successfully';
 
-                Log::error($message);
-            }
-        }
+			$messages[] = [
+				'type' => 'success',
+				'message' => $message
+			];
 
-        $mailBody .= $message;
+			Log::info($message);
+		} else {
+			if (config('backupmanager.backups.files.enable')) {
+				$message = 'Files Backup Failed';
 
-        if ($result['d'] === true) {
-            $message = 'Database Backup Taken Successfully';
+				$messages[] = [
+					'type' => 'danger',
+					'message' => $message
+				];
 
-            $messages[] = [
-                'type' => 'success',
-                'message' => $message
-            ];
+				Log::error($message);
+			}
+		}
 
-            Log::info($message);
-        } else {
-            if (config('backupmanager.backups.database.enable')) {
-                $message = 'Database Backup Failed';
+		$mailBody .= $message;
 
-                $messages[] = [
-                    'type' => 'danger',
-                    'message' => $message
-                ];
+		if ($result['d'] === true) {
+			$message = 'Database Backup Taken Successfully';
 
-                Log::error($message);
-            }
-        }
+			$messages[] = [
+				'type' => 'success',
+				'message' => $message
+			];
 
-        $mailBody .= '<br>' . $message;
+			Log::info($message);
+		} else {
+			if (config('backupmanager.backups.database.enable')) {
+				$message = 'Database Backup Failed';
 
-        $this->sendMail($mailBody);
+				$messages[] = [
+					'type' => 'danger',
+					'message' => $message
+				];
 
-        \Session::flash('messages', $messages);
+				Log::error($message);
+			}
+		}
 
-        return redirect()->back();
-    }
+		$mailBody .= '<br>' . $message;
 
-    public function restoreOrDeleteBackups()
-    {
-        $mailBody = '';
-        $messages = [];
-        $backups = request()->backups;
-        $type = request()->type;
+		$this->sendMail($mailBody);
 
-        if ($type === 'restore' && count($backups) > 2) {
-            $messages[] = [
-                'type' => 'danger',
-                'message' => 'Max of two backups can be restored at a time.'
-            ];
+		\Session::flash('messages', $messages);
 
-            Session::flash('messages', $messages);
-            return redirect()->back();
-        }
+		return redirect()->back();
+	}
 
-        if ($type === 'restore') {
-            // restore backups
+	public function restoreOrDeleteBackups()
+	{
+		$mailBody = '';
+		$messages = [];
+		$backups = request()->backups;
+		$type = request()->type;
 
-            $results = BackupManager::restoreBackups($backups);
+		if ($type === 'restore' && count($backups) > 2) {
+			$messages[] = [
+				'type' => 'danger',
+				'message' => 'Max of two backups can be restored at a time.'
+			];
 
-            // set status messages
-            foreach ($results as $result) {
-                if (isset($result['f'])) {
-                    if ($result['f'] === true) {
-                        $message = 'Files Backup Restored Successfully';
+			Session::flash('messages', $messages);
+			return redirect()->back();
+		}
 
-                        $messages[] = [
-                            'type' => 'success',
-                            'message' => $message
-                        ];
+		if ($type === 'restore') {
+			// restore backups
 
-                        Log::info($message);
-                    } else {
-                        $message = 'Files Restoration Failed';
+			$results = BackupManager::restoreBackups($backups);
 
-                        $messages[] = [
-                            'type' => 'danger',
-                            'message' => $message
-                        ];
+			// set status messages
+			foreach ($results as $result) {
+				if (isset($result['f'])) {
+					if ($result['f'] === true) {
+						$message = 'Files Backup Restored Successfully';
 
-                        Log::error($message);
-                    }
+						$messages[] = [
+							'type' => 'success',
+							'message' => $message
+						];
 
-                    $mailBody .= $message;
+						Log::info($message);
+					} else {
+						$message = 'Files Restoration Failed';
 
-                } elseif (isset($result['d'])) {
-                    if ($result['d'] === true) {
-                        $message = 'Database Backup Restored Successfully';
+						$messages[] = [
+							'type' => 'danger',
+							'message' => $message
+						];
 
-                        $messages[] = [
-                            'type' => 'success',
-                            'message' => $message
-                        ];
+						Log::error($message);
+					}
 
-                        Log::info($message);
-                    } else {
-                        $message = 'Database Restoration Failed';
+					$mailBody .= $message;
 
-                        $messages[] = [
-                            'type' => 'danger',
-                            'message' => $message
-                        ];
+				} elseif (isset($result['d'])) {
+					if ($result['d'] === true) {
+						$message = 'Database Backup Restored Successfully';
 
-                        Log::error($message);
-                    }
+						$messages[] = [
+							'type' => 'success',
+							'message' => $message
+						];
 
-                    $mailBody .= '<br>' . $message;
-                }
-            }
+						Log::info($message);
+					} else {
+						$message = 'Database Restoration Failed';
 
-            $this->sendMail($mailBody);
+						$messages[] = [
+							'type' => 'danger',
+							'message' => $message
+						];
 
-        } else {
-            // delete backups
+						Log::error($message);
+					}
 
-            $results = BackupManager::deleteBackups($backups);
+					$mailBody .= '<br>' . $message;
+				}
+			}
 
-            if ($results) {
-                $messages[] = [
-                    'type' => 'success',
-                    'message' => 'Backup(s) deleted successfully.'
-                ];
-            } else {
-                $messages[] = [
-                    'type' => 'danger',
-                    'message' => 'Deletion failed.'
-                ];
-            }
-        }
+			$this->sendMail($mailBody);
 
-        Session::flash('messages', $messages);
+		} else {
+			// delete backups
 
-        return redirect()->back();
-    }
+			$results = BackupManager::deleteBackups($backups);
 
-    public function download($file)
-    {
-        $path = config('backupmanager.backups.backup_path') . DIRECTORY_SEPARATOR . $file;
+			if ($results) {
+				$messages[] = [
+					'type' => 'success',
+					'message' => 'Backup(s) deleted successfully.'
+				];
+			} else {
+				$messages[] = [
+					'type' => 'danger',
+					'message' => 'Deletion failed.'
+				];
+			}
+		}
 
-        $file = Storage::disk(config('backupmanager.backups.disk'))
-                ->getDriver()
-                ->getAdapter()
-                ->getPathPrefix() . $path;
+		Session::flash('messages', $messages);
 
-        return response()->download($file);
-    }
+		return redirect()->back();
+	}
 
-    protected function sendMail($body)
-    {
-        try {
+	public function download($file)
+	{
+		$path = config('backupmanager.backups.backup_path') . DIRECTORY_SEPARATOR . $file;
 
-            $emails = config('backupmanager.mail.mail_receivers', []);
+		$file = Storage::disk(config('backupmanager.backups.disk'))
+				->getDriver()
+				->getAdapter()
+				->getPathPrefix() . $path;
 
-            if ($emails) {
-                foreach ($emails as $email) {
-                    \Mail::send([], [], static function (Message $message) use ($body, $email) {
-                        $message
-                            ->subject(config('backupmanager.mail.mail_subject', 'BackupManager Alert'))
-                            ->to($email)
-                            ->setBody($body, 'text/html');
-                    });
-                }
-            }
-        } catch (\Exception $e) {
-            \Log::error('BackupManager Email Sending Failed: ' . $e->getMessage());
-        }
-    }
+		return response()->download($file);
+	}
+
+	protected function sendMail($body)
+	{
+		try {
+
+			$emails = config('backupmanager.mail.mail_receivers', []);
+
+			if ($emails) {
+				foreach ($emails as $email) {
+					\Mail::send([], [], static function (Message $message) use ($body, $email) {
+						$message
+							->subject(config('backupmanager.mail.mail_subject', 'BackupManager Alert'))
+							->to($email)
+							->setBody($body, 'text/html');
+					});
+				}
+			}
+		} catch (\Exception $e) {
+			\Log::error('BackupManager Email Sending Failed: ' . $e->getMessage());
+		}
+	}
 }
