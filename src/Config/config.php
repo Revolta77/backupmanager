@@ -10,7 +10,7 @@ return [
     #-------------------------------------------------------------------
     # If "true", the BackupManager page can be viewed by any user who provides
     # correct login information (eg all app users).
-    'http_authentication' => false,
+    'http_authentication' => true,
 
 	# Middleware group settings
 
