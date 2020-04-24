@@ -1,11 +1,11 @@
 <?php
 
-namespace Sarfraznawaz2005\BackupManager\Http\Controllers;
+namespace Revolta77\BackupManager\Http\Controllers;
 
 use Illuminate\Mail\Message;
 use Illuminate\Routing\Controller as BaseController;
 use Log;
-use Sarfraznawaz2005\BackupManager\Facades\BackupManager;
+use Revolta77\BackupManager\Facades\BackupManager;
 use Session;
 use Storage;
 

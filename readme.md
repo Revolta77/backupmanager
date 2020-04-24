@@ -28,19 +28,19 @@ This is fork of https://github.com/sarfraznawaz2005/backupmanager
 Via Composer
 
 ``` bash
-$ composer require sarfraznawaz2005/backupmanager
+$ composer require revolta77/backupmanager
 ```
 
 For Laravel < 5.5:
 
 Add Service Provider to `config/app.php` in `providers` section:
 ```php
-Sarfraznawaz2005\BackupManager\ServiceProvider::class,
+Revolta77\BackupManager\ServiceProvider::class,
 ```
 
 (Optional) Add Facade to `config/app.php` in `aliases` section:
 ```php
-'BackupManager' => Sarfraznawaz2005\BackupManager\Facades\BackupManager::class,
+'BackupManager' => Revolta77\BackupManager\Facades\BackupManager::class,
 ```
 
 ---
@@ -48,7 +48,7 @@ Sarfraznawaz2005\BackupManager\ServiceProvider::class,
 Publish package's files by running below command:
 
 ```bash
-$ php artisan vendor:publish --provider="Sarfraznawaz2005\BackupManager\ServiceProvider"
+$ php artisan vendor:publish --provider="Revolta77\BackupManager\ServiceProvider"
 ```
 It should publish `config/backupmanager.php.php` config file and migration file.
 

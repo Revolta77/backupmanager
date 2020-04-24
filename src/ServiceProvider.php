@@ -1,14 +1,16 @@
 <?php
 
-namespace Sarfraznawaz2005\BackupManager;
+namespace Revolta77\BackupManager;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Sarfraznawaz2005\BackupManager\Console\BackupCommand;
-use Sarfraznawaz2005\BackupManager\Console\BackupListCommand;
-use Sarfraznawaz2005\BackupManager\Console\BackupRestoreCommand;
+use Revolta77\BackupManager\Console\BackupCommand;
+use Revolta77\BackupManager\Console\BackupListCommand;
+use Revolta77\BackupManager\Console\BackupRestoreCommand;
 
 class ServiceProvider extends BaseServiceProvider
 {
+	const PACKAGE = 'backupmanager';
+
     /**
      * Bootstrap services.
      *
@@ -22,7 +24,10 @@ class ServiceProvider extends BaseServiceProvider
         }
 
         // views
-        $this->loadViewsFrom(__DIR__ . '/Views', 'backupmanager');
+        $this->loadViewsFrom(__DIR__ . '/Views', 'backupmanager', self::PACKAGE);
+		$this->publishes([
+			__DIR__ . '/Views' => base_path('resources/views/vendor/' . self::PACKAGE),
+		], 'views');
 
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {

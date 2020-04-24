@@ -1,10 +1,10 @@
 <?php
 
-namespace Sarfraznawaz2005\BackupManager\Console;
+namespace Revolta77\BackupManager\Console;
 
 use Illuminate\Console\Command;
 use Log;
-use Sarfraznawaz2005\BackupManager\Facades\BackupManager;
+use Revolta77\BackupManager\Facades\BackupManager;
 use Storage;
 
 class BackupRestoreCommand extends Command
