@@ -1,16 +1,15 @@
 {
-  "name": "sarfraznawaz2005/backupmanager",
+  "name": "revolta77/backupmanager",
   "description": "laravel package to backup/restore files and database.",
   "license": "MIT",
   "type": "library",
   "authors": [
     {
-      "name": "Sarfraz Ahmed",
-      "email": "sarfraznawaz2005@gmail.com",
-      "homepage": "http://codeinphp.github.io"
+      "name": "Dusan Rybar",
+      "email": "dusan.rybar7@gmail.com",
     }
   ],
-  "homepage": "https://github.com/sarfraznawaz2005/backupmanager",
+  "homepage": "https://github.com/Revolta77/backupmanager",
   "keywords": [
     "Laravel",
     "Backup",
@@ -23,16 +22,16 @@
   },
   "autoload": {
     "psr-4": {
-      "Sarfraznawaz2005\\BackupManager\\": "src/"
+      "Revolta77\\BackupManager\\": "src/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "Sarfraznawaz2005\\BackupManager\\ServiceProvider"
+        "Revolta77\\BackupManager\\ServiceProvider"
       ],
       "aliases": {
-        "BackupManager": "Sarfraznawaz2005\\BackupManager\\Facades\\BackupManager"
+        "BackupManager": "Revolta77\\BackupManager\\Facades\\BackupManager"
       }
     }
   },
