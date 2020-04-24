@@ -5,6 +5,9 @@
 
 Simple laravel package to backup/restore files and database.
 
+## Fork
+This is fork of https://github.com/sarfraznawaz2005/backupmanager
+
 ## Screenshot
 
 ![Main Window](https://github.com/sarfraznawaz2005/backupmanager/blob/master/screen.gif?raw=true)
