@@ -4,7 +4,6 @@ Route::group(
     [
         'namespace' => 'Revolta77\BackupManager\Http\Controllers',
         'prefix' => config('backupmanager.route', 'backupmanager'),
-        'middleware' => config('backupmanager.middleware', 'auth'),
     ],
     function () {
         // list backups
