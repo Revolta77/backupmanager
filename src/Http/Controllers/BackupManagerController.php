@@ -23,7 +23,6 @@ class BackupManagerController extends BaseController
 		});
 
 		if (config('backupmanager.http_authentication')) {
-			$this->middleware( config('backupmanager.middleware', 'auth.basic') );
 			$this->middleware(['web', config('backupmanager.middleware', 'auth.basic')]);
 		}
 	}
